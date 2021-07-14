@@ -36,5 +36,34 @@ public class CustomerBootCoinHandler {
         .body(BodyInserters.fromObject(p)))
         .switchIfEmpty(ServerResponse.notFound().build());
   }
+  
+  public Mono<ServerResponse> addCustomerBootCoin(ServerRequest request){
+	  Mono<CustomerBootCoinDoc> customerBoot =  request.bodyToMono(CustomerBootCoinDoc.class);
+	  
+	  return customerBoot.flatMap(p -> {
+			
+			return customerBootCoinService.save(p);
+	  }).flatMap(p -> ServerResponse
+				.created(URI.create("/api/v2/p2pservice/".concat(p.getId())))
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromObject(p)));
+  }
+  
+  public Mono<ServerResponse> editCustomerBootCoin(ServerRequest request){
+	  Mono<CustomerBootCoinDoc> customerBoot =  request.bodyToMono(CustomerBootCoinDoc.class);
+	  String id = request.pathVariable("id");
+	  Mono<CustomerBootCoinDoc> customerBootdb = customerBootCoinService.findById(id);
+	  
+	  return customerBootdb.zipWith(customerBoot, (db, req) ->{
+			db.setDNI(req.getDNI());
+			db.setEmail(req.getEmail());
+			db.setTelephono(req.getTelephono());
+			db.setTypeDocumentDoc(req.getTypeDocumentDoc());
+			return db;
+		}).flatMap(p -> ServerResponse.created(URI.create("/api/v2/p2pservice/".concat(p.getId())))
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(customerBootCoinService.save(p),CustomerBootCoinDoc.class))
+				.switchIfEmpty(ServerResponse.notFound().build());
+  }
 
 }

@@ -16,6 +16,8 @@ public class RouterFunctionConfig {
   @Bean
   public RouterFunction<ServerResponse> routes(CustomerBootCoinHandler handler){
     return route(GET("/api/v2/p2pservice"), handler::listCustomerBootCoin)
-        .andRoute(GET("/api/v2/p2pservice/{id}"), handler::listCustomerBootCoinId);
+        .andRoute(GET("/api/v2/p2pservice/{id}"), handler::listCustomerBootCoinId)
+        .andRoute(POST("/api/v2/p2pservice"), handler::addCustomerBootCoin)
+        .andRoute(PUT("/api/v2/p2pservice/{id}"), handler::editCustomerBootCoin);
   }
 }
